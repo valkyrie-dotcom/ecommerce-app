@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock title %}
+{% block content %}
+    <h1>Login</h1>
+
+    <!-- This form sends login info to the backend using POST -->
+    <form method="POST" action="{% url 'grabsomore:login' %}">
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p><a href="{% url 'grabsomore:request_password_reset' %}">Forgot your password?</a></p>
+    <p>Don't have an account? <a href="{% url 'grabsomore:register' %}">Register here</a></p>
+{% endblock content %}

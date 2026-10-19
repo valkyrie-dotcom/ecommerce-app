@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Product Page{% endblock title %}
+{% block content %}
+    <h1>Product Page</h1>
+
+    {% if product %}
+        <h2>{{ product.name }}</h2>
+        <p><strong>Store:</strong> {{ product.store.name }}</p>
+        <p><strong>Description:</strong> {{ product.description }}</p>
+        <p><strong>Price:</strong> R{{ product.price }}</p>
+        <p><strong>Stock:</strong> {% if product.stock %}{{ product.stock }}{% else %}Out of stock{% endif %}</p>
+
+        <!-- Reviews for this product -->
+        <h3>Reviews</h3>
+        {% for review in product.reviews.all %}
+            <div class="review">
+                <strong>{{ review.user.username }}</strong>
+                {% if review.verified %}<span class="verified">(Verified)</span>{% else %}<span class="muted">(Unverified)</span>{% endif %}
+                <br>
+                <span class="stars">Rating: {{ review.rating }}/5</span><br>
+                {{ review.comment }}
+            </div>
+        {% empty %}
+            <p>No reviews yet.</p>
+        {% endfor %}
+
+        <!-- Only buyers can leave a review -->
+        {% if perms.eCommerce.add_review %}
+            <form method="POST" action="{% url 'eCommerce:leave_review' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product" value="{{ product.pk }}">
+
+                <label for="rating">Rating (1 to 5)</label>
+                <select id="rating" name="rating" required>
+                    <option value="">Choose a rating</option>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Terrible</option>
+                </select>
+
+                <label for="comment">Leave a review</label>
+                <textarea id="comment" name="comment" rows="3" required></textarea>
+
+                <button type="submit">Submit Review</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <form method="POST" action="{% url 'eCommerce:product_page' %}">
+            {% csrf_token %}
+            <label for="product">Enter product name</label>
+            <input type="text" id="product" name="product" required />
+            <button type="submit">View Product</button>
+        </form>
+    {% endif %}
+
+    <a class="btn" href="{% url 'eCommerce:products_list' %}">🏪 Back to Catalog</a>
+{% endblock content %}

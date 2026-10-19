@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock title %}
+{% block content %}
+    <!-- Greet the user using their logged-in username -->
+    <h1>Welcome, {{ request.user.username }}!</h1>
+    <p>You are now logged in.</p>
+
+    <a class="btn" href="{% url 'eCommerce:products_list' %}">Go to Store</a>
+    {% if perms.eCommerce.view_store %}
+        <a class="btn" href="{% url 'eCommerce:my_stores' %}">Manage My Stores</a>
+    {% endif %}
+{% endblock content %}

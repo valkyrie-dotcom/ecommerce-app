@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Order Complete{% endblock title %}
+{% block content %}
+    <h1>Thank you for your order</h1>
+    <p>Your invoice has been emailed to {{ order.buyer.email }}.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>R{{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Total Price:</strong> R{{ order.total }}</p>
+
+    <a class="btn" href="{% url 'eCommerce:products_list' %}">🏪 Continue Shopping</a>
+{% endblock content %}

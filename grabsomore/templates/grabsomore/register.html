@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock title %}
+{% block content %}
+    <h1>Register an Account</h1>
+
+    <!-- This form sends registration info to the backend -->
+    <form method="POST" action="{% url 'grabsomore:register' %}">
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="password_conf">Confirm password</label>
+        <input type="password" id="password_conf" name="password_conf" required>
+
+        <!-- Account type: decides the user's group -->
+        <label>Account type</label>
+        <label class="radio-option"><input type="radio" name="account_type" value="buyer" checked> Buyer</label>
+        <label class="radio-option"><input type="radio" name="account_type" value="vendor"> Vendor</label>
+
+        <br>
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a href="{% url 'grabsomore:login' %}">Login here</a></p>
+{% endblock content %}
