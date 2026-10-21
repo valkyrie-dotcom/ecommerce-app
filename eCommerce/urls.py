@@ -31,4 +31,23 @@ urlpatterns = [
     path("cart/", views.show_user_cart, name="main_cart_page"),
     path("clear-cart/", views.clear_cart, name="clear_cart"),
     path("checkout/", views.checkout, name="checkout"),
+
+    # API
+    path(
+        "api/vendors/<int:vendor_id>/stores/",
+        views.view_vendor_stores, name="api_vendor_stores",
+    ),
+    path(
+        "api/stores/<int:store_id>/products/",
+        views.view_store_products, name="api_store_products",
+    ),
+    path(
+        "api/products/<int:product_id>/reviews/",
+        views.view_product_reviews, name="api_product_reviews",
+    ),
+    path("api/stores/", views.api_add_store, name="api_add_store"),
+    path("api/products/", views.api_add_product, name="api_add_product"),
+
+    # Reddit feed
+    path("reddit/", views.reddit_feed, name="reddit_feed"),
 ]

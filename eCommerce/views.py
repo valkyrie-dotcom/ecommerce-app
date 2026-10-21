@@ -1,5 +1,5 @@
-"""Views for the eCommerce app (products, reviews, stores, cart and
-checkout)."""
+"""Views for the eCommerce app (products, reviews, stores, cart,
+checkout, the web API and the Reddit feed)."""
 import smtplib
 
 from django.contrib import messages
@@ -7,9 +7,18 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from rest_framework import status
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.decorators import (
+    api_view, authentication_classes, permission_classes,
+)
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .forms import ProductForm, StoreForm
+from .functions.reddit import get_reddit_posts
 from .models import Order, OrderItem, Product, Review, Store
+from .serializers import ProductSerializer, ReviewSerializer, StoreSerializer
 from .utils import build_invoice_email
 
 
@@ -355,3 +364,98 @@ def checkout(request):
     return render(
         request, "eCommerce/checkout_complete.html", {"order": order}
     )
+
+
+# ---------- API ----------
+
+@api_view(["GET"])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def view_vendor_stores(request, vendor_id):
+    """Return the stores listed under one vendor."""
+    stores = Store.objects.filter(owner_id=vendor_id)
+    serializer = StoreSerializer(stores, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def view_store_products(request, store_id):
+    """Return the products of one store."""
+    store = get_object_or_404(Store, pk=store_id)
+    serializer = ProductSerializer(store.products.all(), many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def view_product_reviews(request, product_id):
+    """Return the reviews of one product."""
+    product = get_object_or_404(Product, pk=product_id)
+    serializer = ReviewSerializer(product.reviews.all(), many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def api_add_store(request):
+    """Let a vendor create a store for themselves."""
+    if not request.user.has_perm("eCommerce.add_store"):
+        return Response({"error": "Only vendors can create stores."},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    # Vendors can only create stores for themselves
+    owner_id = request.data.get("owner")
+    if owner_id is None:
+        return Response({"error": "Owner field is required."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    if int(owner_id) != request.user.id:
+        return Response({"error": "User ID and owner ID do not match."},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    serializer = StoreSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def api_add_product(request):
+    """Let a vendor add a product to one of their own stores."""
+    if not request.user.has_perm("eCommerce.add_products"):
+        return Response({"error": "Only vendors can add products."},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    # Vendors can only add products to their own stores
+    store_id = request.data.get("store")
+    if store_id is None:
+        return Response({"error": "Store field is required."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    store = get_object_or_404(Store, pk=store_id)
+    if store.owner != request.user:
+        return Response({"error": "You can only add products to your "
+                                  "own stores."},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    serializer = ProductSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ---------- Reddit feed ----------
+
+def reddit_feed(request):
+    """Show posts from the r/django subreddit."""
+    # Call our helper function to fetch posts
+    posts = get_reddit_posts("django")
+
+    # Pass the posts into the template
+    return render(request, "eCommerce/reddit_feed.html", {"posts": posts})

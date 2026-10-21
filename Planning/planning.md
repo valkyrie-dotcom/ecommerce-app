@@ -40,6 +40,8 @@ The design diagrams can be found in 'Planning/diagrams':
 - `sequence_authentication`: logging in and permission checks
 - `sequence_purchase`: cart, checkout and reviews
 - `sequence_password_reset`: requesting and using a reset link
+- `sequence_api`: using the web API (creating stores and products,
+  retrieving stores, products and reviews)
 
 ## 3. User interface
 
@@ -108,3 +110,50 @@ only shows for buyers, and the My Stores link only shows for vendors.
 | Adding more to the cart than the stock available | Cart page shows how many are in stock |
 | Stock dropped below the cart quantity before checkout | Cart page shows the error and no order is saved |
 | Invoice email cannot be sent | Order is still saved and a message says the email failed |
+
+## 6. Web API
+
+### Representation
+
+Resources are serialised with Django REST framework `ModelSerializer`
+classes in `eCommerce/serializers.py` and returned as **JSON**. JSON is
+short, easy to read and maps directly onto Python objects.
+
+| Model | Fields in the API |
+|-------|-------------------|
+| Store | id, owner, name, description |
+| Product | id, store, name, description, price, stock |
+| Review | id, product, user, rating, comment, verified |
+
+### Endpoints
+
+All endpoints start with `/ecommerce/api/` and use nouns for resources.
+
+| Method | Endpoint | Who | What it does |
+|--------|----------|-----|--------------|
+| GET | `vendors/<vendor_id>/stores/` | Buyers and vendors | Stores listed under a vendor |
+| GET | `stores/<store_id>/products/` | Buyers and vendors | Products of a store |
+| GET | `products/<product_id>/reviews/` | Buyers and vendors | Reviews of a product |
+| POST | `stores/` | Vendors | Create a store for themselves |
+| POST | `products/` | Vendors | Add a product to one of their stores |
+
+### Authentication and access
+
+- Every endpoint uses `BasicAuthentication` and `IsAuthenticated`, so a
+  valid username and password must be sent with each request.
+- Creating a store needs the `add_store` permission, and the `owner` sent
+  must be the logged-in user.
+- Adding a product needs the `add_products` permission, and the store must
+  belong to the logged-in user.
+
+### Failure handling
+
+| What goes wrong | Response |
+|-----------------|----------|
+| No or wrong username and password | 401 Unauthorized |
+| Buyer tries to create a store or product | 403 Forbidden |
+| Owner is not the logged-in user, or the store is someone else's | 403 Forbidden |
+| Required field missing or invalid | 400 Bad Request with the errors |
+| Store or product does not exist | 404 Not Found |
+| Wrong method (for example GET on a POST endpoint) | 405 Method Not Allowed |
+

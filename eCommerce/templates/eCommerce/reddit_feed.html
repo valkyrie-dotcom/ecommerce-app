@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Reddit Feed{% endblock title %}
+{% block content %}
+    <h1>Posts from Reddit</h1>
+    <ul>
+        {% for post in posts %}
+            <li>
+                <strong>{{ post.title }}</strong><br>
+                by {{ post.author }}<br>
+                <a href="{{ post.url }}" target="_blank">View Post</a>
+            </li>
+        {% empty %}
+            <li>Could not load posts from Reddit.</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

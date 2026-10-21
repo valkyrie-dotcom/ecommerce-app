@@ -22,6 +22,9 @@ GitHub repository: https://github.com/valkyrie-dotcom/ecommerce-app
   only be used for one account.
 * Users can reset forgotten passwords through an emailed link that expires
   after 5 minutes.
+* A web API lets vendors create stores and add products, and lets buyers
+  and vendors retrieve stores, products and reviews.
+* A Reddit feed page shows posts from the r/django subreddit.
 
 ## Requirements
 
@@ -154,6 +157,42 @@ terminal to stop the server.
 
 If no email details are set in `.env`, emails (invoices and password reset
 links) are printed in the terminal.
+
+## Web API
+
+Test the API with Postman. Use **Basic Auth** with a registered username and
+password, and send POST data as raw JSON.
+
+| Method | Endpoint |
+|--------|----------|
+| GET | `/ecommerce/api/vendors/<vendor_id>/stores/` |
+| GET | `/ecommerce/api/stores/<store_id>/products/` |
+| GET | `/ecommerce/api/products/<product_id>/reviews/` |
+| POST | `/ecommerce/api/stores/` |
+| POST | `/ecommerce/api/products/` |
+
+Example body for `POST /ecommerce/api/stores/` (the owner is your user ID):
+
+```json
+{"owner": 1, "name": "BaconShop", "description": "We sell Bacon!"}
+```
+
+Example body for `POST /ecommerce/api/products/`:
+
+```json
+{"store": 1, "name": "Bacon", "description": "Smoked", "price": "49.99", "stock": 10}
+```
+
+## Reddit feed
+
+Open http://127.0.0.1:8000/ecommerce/reddit/ to see posts from r/django.
+
+**Note:** the Reddit code follows the lesson, which fetches the public
+`https://www.reddit.com/r/<subreddit>/.json` feed with only a User-Agent
+header. Since May 2026 Reddit blocks these requests unless the user is
+logged in, and returns `403 Forbidden`. When that happens, the terminal
+prints "Failed to fetch data." and the page shows "Could not load posts from
+Reddit." The code works again if Reddit allows the public feed.
 
 ## Project structure
 
