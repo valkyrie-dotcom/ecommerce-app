@@ -11,11 +11,20 @@ urlpatterns = [
     path("product/", views.view_product_page, name="product_page"),
     path("review/", views.leave_review, name="leave_review"),
 
+    # Vendors and stores (buyers and vendors)
+    path("vendors/", views.vendor_list, name="vendor_list"),
+    path("stores/", views.store_list, name="store_list"),
+    path("stores/<int:pk>/", views.store_products, name="store_products"),
+
     # Vendors: stores and products
     path("my-stores/", views.my_stores, name="my_stores"),
     path("stores/new/", views.create_store, name="create_store"),
     path("stores/<int:pk>/edit/", views.edit_store, name="edit_store"),
     path("stores/<int:pk>/delete/", views.delete_store, name="delete_store"),
+    path(
+        "stores/<int:pk>/reviews/",
+        views.store_reviews, name="store_reviews",
+    ),
     path(
         "stores/<int:store_pk>/add-product/",
         views.add_product, name="add_product",

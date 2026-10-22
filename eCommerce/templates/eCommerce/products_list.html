@@ -1,7 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Product Catalog{% endblock title %}
+{% block title %}{% if store %}{{ store.name }}{% else %}Product Catalog{% endif %}{% endblock title %}
 {% block content %}
-    <h1>Product Catalog</h1>
+    {% if store %}
+        <!-- One store's products (opened from the Vendors or Stores page) -->
+        <h1>{{ store.name }}</h1>
+        <p class="muted">Sold by {{ store.owner.username }}. {{ store.description }}</p>
+    {% else %}
+        <h1>Product Catalog</h1>
+    {% endif %}
 
     {% if products %}
         <table>

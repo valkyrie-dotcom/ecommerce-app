@@ -1,8 +1,9 @@
-"""Views for the eCommerce app (products, reviews, stores, cart,
-checkout, the web API and the Reddit feed)."""
+"""Views for the eCommerce app: products, reviews, stores, cart,
+checkout, the web API and the Reddit feed."""
 import smtplib
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -118,6 +119,51 @@ def leave_review(request):
     return redirect("eCommerce:product_page")
 
 
+# ---------- Vendors and stores (buyers and vendors) ----------
+
+@login_required
+def vendor_list(request):
+    """Show each vendor with the stores listed under them."""
+    if not request.user.has_perm("eCommerce.view_products"):
+        return render(request, "eCommerce/vendor_list.html", {
+            "error": "You do not have permission to view vendors."
+        })
+    # Only users who own at least one store are vendors with stores
+    vendors = (
+        get_user_model().objects.filter(store__isnull=False)
+        .distinct().order_by("username")
+    )
+    return render(
+        request, "eCommerce/vendor_list.html", {"vendors": vendors}
+    )
+
+
+@login_required
+def store_list(request):
+    """Show all stores and the vendor of each one."""
+    if not request.user.has_perm("eCommerce.view_products"):
+        return render(request, "eCommerce/store_list.html", {
+            "error": "You do not have permission to view stores."
+        })
+    stores = Store.objects.select_related("owner").order_by("name")
+    return render(request, "eCommerce/store_list.html", {"stores": stores})
+
+
+@login_required
+def store_products(request, pk):
+    """Show the products of one store, using the product catalogue
+    page."""
+    if not request.user.has_perm("eCommerce.view_products"):
+        return render(request, "eCommerce/products_list.html", {
+            "error": "You do not have permission to view products."
+        })
+    store = get_object_or_404(Store, pk=pk)
+    return render(request, "eCommerce/products_list.html", {
+        "store": store,
+        "products": store.products.all(),
+    })
+
+
 # ---------- Vendors: stores ----------
 
 @login_required
@@ -174,6 +220,27 @@ def delete_store(request, pk):
     if request.method == "POST":
         store.delete()
     return redirect("eCommerce:my_stores")
+
+
+@login_required
+def store_reviews(request, pk):
+    """Show a vendor all the reviews of the products in one of their
+    stores."""
+    if not request.user.has_perm("eCommerce.view_store"):
+        return render(request, "eCommerce/store_reviews.html", {
+            "error": "Only vendors can view store reviews."
+        })
+    # Vendors can only see the reviews of their own stores
+    store = get_object_or_404(Store, pk=pk, owner=request.user)
+    reviews = (
+        Review.objects.filter(product__store=store)
+        .select_related("product", "user")
+        .order_by("product__name")
+    )
+    return render(request, "eCommerce/store_reviews.html", {
+        "store": store,
+        "reviews": reviews,
+    })
 
 
 # ---------- Vendors: products ----------

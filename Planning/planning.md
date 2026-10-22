@@ -7,6 +7,7 @@ Users should be able to register and log in as either:
 1. Vendors
 - create, view, edit and remove stores
 - add, view, edit and remove products in their stores
+- see all the reviews of each of their stores in one list
 
 2. Buyers
 - view products from different stores
@@ -16,6 +17,9 @@ Users should be able to register and log in as either:
   emails an invoice
 - leave reviews with a rating from 1 to 5 (verified if buyer has bought
   product, unverified if not)
+
+Buyers and vendors can both view the vendors, the stores listed under each
+vendor and the products of each store.
 
 On registration, users confirm their password, and each email address can
 only be used for one account.
@@ -46,8 +50,10 @@ The design diagrams can be found in 'Planning/diagrams':
 ## 3. User interface
 
 Every page extends `base.html`, which loads the shared stylesheet and shows a
-navigation bar at the top, plus any success or error messages. The Cart link
-only shows for buyers, and the My Stores link only shows for vendors.
+navigation bar at the top, plus any success or error messages. 
+
+The Cart link only shows for buyers, and the My Stores link only shows for
+vendors.
 
 - **Login and Register:** simple forms. Register as a buyer or vendor, and
   confirm the password.
@@ -60,8 +66,17 @@ only shows for buyers, and the My Stores link only shows for vendors.
   a review with a rating from 1 to 5 here.
   Product pages should also be reachable by clicking on the product name,
   which will contain a link that reroutes to the product page.
+- **Vendors:** each vendor with the stores listed under them. Clicking a store
+  opens its products.
+- **Stores:** all stores with their vendor and description. Clicking a store
+  opens its products.
+- **Store page:** the Product Catalog for one store's products only.
 - **My Stores (vendors):** each store with its products, and buttons to create,
-  edit and remove stores and products.
+  edit and remove stores and products, and to see the store's reviews.
+- **Store Reviews (vendors):** every review of the store's products in one
+  table, with the product, buyer, rating, whether it is verified and the
+  comment.
+- **Reddit feed:** posts from the r/django subreddit.
 - **Cart (buyers):** items, subtotals, total, and Checkout and Clear Cart
   buttons.
 - **Order Complete:** the invoice and a note that it was emailed.
@@ -95,7 +110,8 @@ only shows for buyers, and the My Stores link only shows for vendors.
 |-----------------|--------------|
 | User is not logged in | Redirected to the login page |
 | User does not have permission | The page shows an error message |
-| Vendor opens another vendor's store or product | 404 page |
+| Vendor opens another vendor's store or product, or its reviews | 404 page |
+| Store number does not exist | 404 page |
 | Wrong username or password | Login page shows "Invalid credentials" |
 | Username empty or already taken, or password empty or too weak | Register page shows the error |
 | Passwords do not match on registration | Register page shows "Passwords do not match." |

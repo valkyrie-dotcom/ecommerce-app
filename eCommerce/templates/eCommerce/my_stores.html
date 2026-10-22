@@ -13,6 +13,7 @@
 
                 <a class="btn" href="{% url 'eCommerce:edit_store' pk=store.pk %}">✏️ Edit Store</a>
                 <a class="btn" href="{% url 'eCommerce:add_product' store_pk=store.pk %}">➕ Add Product</a>
+                <a class="btn" href="{% url 'eCommerce:store_reviews' pk=store.pk %}">⭐ Reviews</a>
                 <form class="inline-form" method="POST" action="{% url 'eCommerce:delete_store' pk=store.pk %}">
                     {% csrf_token %}
                     <button class="btn-danger" type="submit">🗑️ Remove Store</button>

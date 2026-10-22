@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Reviews{% endblock title %}
+{% block content %}
+    {% if store %}
+        <h1>Reviews for {{ store.name }}</h1>
+
+        <!-- All the reviews of this store's products in one list -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Buyer</th>
+                    <th>Rating</th>
+                    <th>Verified</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                    <tr>
+                        <td><a href="{% url 'eCommerce:product_page' %}?product={{ review.product.name|urlencode }}">{{ review.product.name }}</a></td>
+                        <td>{{ review.user.username }}</td>
+                        <td class="stars">{{ review.rating }}/5</td>
+                        <td>{% if review.verified %}<span class="verified">Yes</span>{% else %}<span class="muted">No</span>{% endif %}</td>
+                        <td>{{ review.comment }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">No reviews yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <a class="btn" href="{% url 'eCommerce:my_stores' %}">🏪 Back to My Stores</a>
+{% endblock content %}

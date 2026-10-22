@@ -10,7 +10,10 @@ GitHub repository: https://github.com/valkyrie-dotcom/ecommerce-app
 ## Usage Features
 
 * Vendors create, view, edit and remove stores, and add, view, edit and
-  remove products in their stores.
+  remove products in their stores. Each store has a Reviews page listing all
+  the reviews of its products.
+* Buyers and vendors browse the vendors and the stores listed under each
+  vendor, and open a store to see its products.
 * Buyers view products from different stores, add them to a cart kept in the
   session, and check out. A buyer cannot add more of a product than there is
   stock available.
@@ -24,7 +27,8 @@ GitHub repository: https://github.com/valkyrie-dotcom/ecommerce-app
   after 5 minutes.
 * A web API lets vendors create stores and add products, and lets buyers
   and vendors retrieve stores, products and reviews.
-* A Reddit feed page shows posts from the r/django subreddit.
+* A Reddit feed page (the Reddit link in the menu) shows posts from the
+  r/django subreddit.
 
 ## Requirements
 
@@ -185,7 +189,8 @@ Example body for `POST /ecommerce/api/products/`:
 
 ## Reddit feed
 
-Open http://127.0.0.1:8000/ecommerce/reddit/ to see posts from r/django.
+Click **Reddit** in the menu, or open http://127.0.0.1:8000/ecommerce/reddit/,
+to see posts from r/django.
 
 **Note:** the Reddit code follows the lesson, which fetches the public
 `https://www.reddit.com/r/<subreddit>/.json` feed with only a User-Agent

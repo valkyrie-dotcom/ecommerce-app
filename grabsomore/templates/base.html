@@ -14,14 +14,17 @@
         <nav>
             {% if user.is_authenticated %}
                 <a href="{% url 'grabsomore:welcome' %}">Home</a>
-                <a href="{% url 'eCommerce:products_list' %}">Products</a>
-                <a href="{% url 'eCommerce:product_page' %}">Search</a>
                 {% if perms.eCommerce.view_store %}
                     <a href="{% url 'eCommerce:my_stores' %}">My Stores</a>
                 {% endif %}
+                <a href="{% url 'eCommerce:vendor_list' %}">Vendors</a>
+                <a href="{% url 'eCommerce:store_list' %}">Stores</a>
+                <a href="{% url 'eCommerce:products_list' %}">Products</a>
+                <a href="{% url 'eCommerce:product_page' %}">Search</a>
                 {% if perms.eCommerce.add_order %}
                     <a href="{% url 'eCommerce:main_cart_page' %}">Cart</a>
                 {% endif %}
+                <a href="{% url 'eCommerce:reddit_feed' %}">Reddit</a>
                 <!-- Logging out uses POST, like the form in the lesson -->
                 <form class="inline-form" method="POST" action="{% url 'grabsomore:logout' %}">
                     {% csrf_token %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Vendors{% endblock title %}
+{% block content %}
+    <h1>Vendors</h1>
+
+    {% if not error %}
+        <!-- Each vendor with the stores listed under them -->
+        {% for vendor in vendors %}
+            <div class="store-card">
+                <h2>{{ vendor.username }}</h2>
+                <ul>
+                    {% for store in vendor.store_set.all %}
+                        <li><a href="{% url 'eCommerce:store_products' pk=store.pk %}">{{ store.name }}</a> <span class="muted">{{ store.description }}</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% empty %}
+            <p>No vendors have created a store yet.</p>
+        {% endfor %}
+    {% endif %}
+{% endblock content %}

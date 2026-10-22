@@ -1,5 +1,5 @@
-"""Views for the grabsomore app (login, registration, logout and
-password reset)."""
+"""Views for the grabsomore app: login, registration, logout and
+password reset."""
 from hashlib import sha1
 
 from django.contrib.auth import authenticate, login, logout
